@@ -1,3 +1,6 @@
+//Bot setting
+const botSettings = { guessSpeed: 750 /*Milliseconds*/, startNumber: 500, minNumber: 100, maxNumber: 1000, debug: true }
+
 const MAX_NUMBER = 100
 const MIN_NUMBER = 0
 const results = []
@@ -45,23 +48,27 @@ function start() {
 function startBot() {
     //disables all buttons!
     for (let x = 0; x < document.getElementsByTagName("button").length; x++) {
-        document.getElementsByTagName("button")[x].disabled = true;
+        document.getElementsByTagName("button")[x].disabled = true
     }
     document.getElementById('before-start').style.display = 'none'
     document.querySelector('main').style.display = 'block'
-    guess = 50 //bot börjar gissa på 50!
+
+    minGuess = botSettings.minNumber
+    maxGuess = botSettings.maxNumber
+    botGuessNumber = botSettings.startNumber
     correctGuess = getRandomInt()
-    setMessage(`Is it ${guess}?`)
-    botGuessNumber = getRandomInt()
-    if (botGuessNumber > 0)
+    if (botGuessNumber > 0) {
         botGuessNumber++
-    botInterval = setInterval(botGuess, 500)
+    }
+    botGuess()
+    botInterval = setInterval(botGuess, botSettings.guessSpeed)
 }
 
 function botGuess() {
     botGuessesCount++
     setMessage(`Is it ${botGuessNumber}?`)
-    console.log("guessing on: " + botGuessNumber + " correct answer: " + correctGuess) //for debbuging :)
+    if (botSettings.debug)
+        console.log("bot guessing on: " + botGuessNumber + " - the correct answer is: " + correctGuess) //for debbuging :)
     if (botGuessNumber == correctGuess) {
         clearInterval(botInterval)
         setMessage(`Correct!! ${botGuessNumber} guessess needed: ${botGuessesCount}`)
@@ -69,15 +76,23 @@ function botGuess() {
     else {
         if (botGuessNumber < correctGuess) {
             minGuess = botGuessNumber
+            if (botSettings.debug)
+                console.log("bot guessed too low") //debug
         }
         else {
             maxGuess = botGuessNumber
+            if (botSettings.debug)
+                console.log("bot guessed too high") //debug
         }
         botGuessNumber = (maxGuess + minGuess) / 2
-        botGuessNumber = Math.round(botGuessNumber)
+        botGuessNumber = Math.floor(botGuessNumber)
     }
 }
-//guess = getRandomInt()
+
+function getRandomInt() {
+    return Math.floor(Math.random() * (Math.floor(maxGuess) - Math.ceil(minGuess) + 1)) + Math.ceil(minGuess)
+}
+
 document.getElementById('too-low-btn').addEventListener('click', function () {
     // Vad ska hända när man tryckt too low?
     minGuess = guess
